@@ -1,4 +1,3 @@
-
 name: Update Status Mirror
 
 on:
@@ -22,9 +21,7 @@ jobs:
           node-version: 20
 
       - name: Export status from Uptime Kuma
-        run: |
-          npm ci || true
-          node export-status.js
+        run: node export-status.js
 
       - name: Commit updated status files
         run: |

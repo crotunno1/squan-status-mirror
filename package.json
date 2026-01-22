@@ -1,10 +1,5 @@
 {
-  "name": "cortechnology-status-mirror",
+  "name": "squan-status-mirror",
   "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "export": "node export-status.js"
-  },
-  "dependencies": {}
+  "type": "module"
 }
-``
