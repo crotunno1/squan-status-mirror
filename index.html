@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Status (Mirror)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #0f172a;
+    --fg: #e5e7eb;
+    --ok: #22c55e;
+    --down: #ef4444;
+    --muted: #94a3b8;
+    --card: #111827;
+  }
+  body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: var(--bg); color: var(--fg); }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 28px; }
+  header { margin-bottom: 16px; }
+  .banner { background: #4b5563; color: white; padding: 8px 12px; border-radius: 8px; margin-bottom: 16px; display: none; }
+  .card { background: var(--card); border-radius: 12px; padding: 16px; margin: 10px 0; }
+  .group { font-weight: 600; margin-top: 16px; }
+  .ok { color: var(--ok); }
+  .down { color: var(--down); }
+  a { color: #60a5fa; }
+  .meta { color: var(--muted); font-size: 0.9rem; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1 id="title">Status (Mirror)</h1>
+      <div class="meta" id="desc"></div>
+      <div class="meta"><strong>Last updated:</strong> <span id="updated">—</span></div>
+      <div class="banner" id="warning"></div>
+      <p class="meta">
+        Primary page: <a href="https://squan.cortechnology.net/status/squan" target="_blank" rel="noopener">squan.cortechnology.net/status/squan</a>
+      </p>
+    </header>
+
+    <div id="content"></div>
+  </div>
+
+<script>
+async function load() {
+  let data;
+  try {
+    const res = await fetch("status.json", { cache: "no-store" });
+    data = await res.json();
+  } catch {
+    document.getElementById("warning").style.display = "block";
+    document.getElementById("warning").textContent = "Mirror status unavailable.";
+    return;
+  }
+
+  // If an error flag was written, show a banner (primary unreachable).
+  try {
+    const err = await fetch("error.json", { cache: "no-store" });
+    if (err.ok) {
+      const e = await err.json();
+      const w = document.getElementById("warning");
+      w.style.display = "block";
+      w.textContent = "Primary status source unreachable at " + e.timestamp + ". Showing last known state.";
+    }
+  } catch {}
+
+  document.getElementById("updated").textContent = data.fetchedAt || "—";
+  if (data.page?.title) document.getElementById("title").textContent = data.page.title + " (Mirror)";
+  if (data.page?.description) document.getElementById("desc").textContent = data.page.description;
+
+  const root = document.getElementById("content");
+  root.innerHTML = "";
+
+  (data.services || []).forEach(group => {
+    const g = document.createElement("div");
+    g.className = "card";
+    const gh = document.createElement("div");
+    gh.className = "group";
+    gh.textContent = group.name || "Group";
+
+    g.appendChild(gh);
+
+    (group.monitors || []).forEach(m => {
+      const p = document.createElement("div");
+      const up = m.status === 1;
+      p.innerHTML = `<span class="${up ? "ok" : "down"}">●</span> ${m.name} — ${up ? "Operational" : (m.status === 0 ? "Down" : "Unknown")}`;
+      g.appendChild(p);
+    });
+
+    root.appendChild(g);
+  });
+}
+load();
+</script>
+</body>
+</html>
+``

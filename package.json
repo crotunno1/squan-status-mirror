@@ -1,0 +1,10 @@
+{
+  "name": "cortechnology-status-mirror",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "export": "node export-status.js"
+  },
+  "dependencies": {}
+}
+``
